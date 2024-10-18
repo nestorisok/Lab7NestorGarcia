@@ -10,6 +10,63 @@ using namespace std;
 
 
 
+/*
+	BOOTHS ALG
+	----------
+	MQ0		MQ-1
+
+	0		0	AC
+	1		1	AC
+	0		1	AC <- AC + MD	// 16-bit addition
+	1		0	AC <- AC - MD	// 16-bit subtraction
+
+
+	2. AC | MQ | MD >> 1 (Arithmatic)
+
+	3. Counter--;
+
+	input - MD->16 bits / MQ->16 bits / AC->16 bits
+
+
+	ex
+	ALU 16()
+	{
+	// Runs for 16 times (16-bits)
+		ALU1() // MQ[15]  MD[15]
+		ALU1() // MQ[14]  MD[14]
+
+
+		returns MQ, MD
+	}
+
+	// ALU0 cout is ALU1's CIN
+
+	BOOTHS ALG()
+	{
+	// Runs for 16 time
+	// vvvvvvv
+
+		if(mq0 = 0 && mq-1 = 1)
+		{
+		ALU16(add);
+		}
+		if(MQ0 = 1 & MQ-1 = 0)
+		{
+		ALU16(sub);
+		}
+
+		Right shift(MD, MQ, AC)
+	// ^^^^^^^^^
+		Binary counter;		// Each step counter displayed // Displays MD	AC	MQ	MQ-1
+		return product;
+
+
+	}
+
+
+
+*/
+
 int AND_gate(int a, int b);
 int OR_gate(int a, int b);
 
@@ -21,7 +78,7 @@ int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout);
 
 void ALU_results(string inp);
 
-
+int ALU_16bit(int inpMQ, int inpMD, int B_inv, int cin, string op, int& cout);
 
 int main()
 {
@@ -211,6 +268,48 @@ int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout)
 
 }
 
+// MQ-1 = LSB_MQ
+
+int ALU_16bit(int inpMQ, int inpMD, int B_inv16, int cin16, string op16, int& cout) // Op code for and, or, add, sub
+{
+	int binMQ = inpMQ;
+	int binMD = inpMD;
+
+
+	for (int i = 16; i > 0; i--) // decreement from MQ MD
+	{
+		int LSB_MQ = binMQ % 10; // bit0, least significant bits for MQ and MD
+		int LSB_MD = binMD % 10;
+
+		// Here I would need to initiate the ALU0
+		// To do so, some input would change B_inv
+		// example if we want to sub the two values, we set B_inv to 1
+		// and op code to 10 to use adder
+		// AND would be 00 with no cin, b-inv, or cout
+		// to implement ADD/SUB, the carry in could be changed to whatever given data has and 
+		// ALU0 carrout becomes ALU1's carry-in to use for next instruction
+		// What stays constant between ALU calls is only the op code
+		// could be a switch statement with enums to have AND/OR/ADD/SUB
+		// We could iterate through integers and perform given tasks
+
+
+
+		// Given input of 16-bits, we constantly doing actions
+		cout = 0;
+		// a is bit from top part, b is bit from bottom
+		ALU_1bit(LSB_MQ, LSB_MD, B_inv, cin, op, &cout);
+		cout = cin;
+		
+		binMQ = binMQ >> 1; // Shifts the integer to next bit
+		binMD = binMD >> 1;
+
+		//int cin = cout;
+
+
+	}
+
+
+}
 
 
 
