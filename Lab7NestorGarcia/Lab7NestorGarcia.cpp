@@ -1,5 +1,7 @@
 #include <iostream>
 #include <bitset>
+#include <iomanip>
+
 using namespace std;
 // This program demonstrates how a 1-Bit ALU functions when recieving different opcodes
 // This ALU specifically is able to do AND, OR, ADD, and SUB
@@ -71,28 +73,68 @@ int AND_gate(int a, int b);
 int OR_gate(int a, int b);
 
 int full_adder(int a, int b, int cin, int& cout);
-int mux_2x1(int x1, int x2, int sel);
-int mux_4x1(int x1, int x2, int x3, int x4, string sel);
+int mux_2x1(int x1, int x2, int op);
+int mux_4x1(int x1, int x2, int x3, int x4, string op);
 int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout);
 
 
 void ALU_results(string inp);
 
-int ALU_16bit(int inpMQ, int inpMD, int B_inv, int cin, string op, int& cout);
+int ALU_16bit(int inpMQ[], int inpMD[], int B_inv, int cin, string op, int& cout);
 
+void stringToArr(string valInp, int arrInp[]);
+
+const int bitSize = 16;
 int main()
 {
+	string valA, valB;
+	int aBit[bitSize];
+	int bBit[bitSize];
 
+
+	cout << "Enter first value: ";
+	cin >> setw(bitSize) >> valA;
+	stringToArr(valA, aBit);
+
+
+	cout << "Enter second value: ";
+	cin >> setw(bitSize) >> valB;
+	stringToArr(valB, bBit);
+
+
+	for (int i = 0; i < bitSize; i++)
+	{
+		cout << aBit[i] << endl;
+	}
+
+
+
+
+	/*
 	ALU_results("AND");
 	ALU_results("OR");
 	ALU_results("ADD");
 	ALU_results("SUB");
-
+	*/
 
 
 
 	return 0;
 }
+
+void stringToArr(string valInp, int arrInp[])
+{
+	char c;
+	for (int i = 0; i < valInp.length(); i++)
+	{
+
+		c = valInp[i];
+		arrInp[i] = atoi(&c);
+	}
+
+
+}
+
 
 
 // Takes in string input to chose from different outputs
@@ -199,81 +241,62 @@ int OR_gate(int a, int b)
 
 int full_adder(int a, int b, int cin, int& cout)
 {
-
-	int sum = (a ^ b ^ cin);
+;
 	cout = (a & b) | (cin & (a ^ b));
 
 
-	return sum;
+	return (a ^ b ^ cin);
 }
 
-int mux_2x1(int x1, int x2, int sel)
-{
-
-	return ((sel == 0) ? x1 : x2); // If sel == 0, return x1, if sel != 0 return x2
-}
-
-int mux_4x1(int x1, int x2, int x3, int x4, string sel)
-{
-	switch (atoi(sel.c_str()))
-	{
-	case 00:
+int mux_2x1(int x1, int x2, int op)
+{// If sel == 0, return x1, if sel != 0 return x2
+	if (op == 0)
 		return x1;
-		break;
-
-	case 01:
+	else if (op == 1)
 		return x2;
-		break;
+	else
+	return -9999; 
+}
 
-	case 10:
+int mux_4x1(int x1, int x2, int x3, int x4, string op)
+{
+
+	if (op == "00")
+		return x1;
+	else if (op == "01")
+		return x2;
+	else if (op == "10") 
 		return x3;
-		break;
-
-	case 11:
+	else if (op == "11") 
 		return x4;
-		break;
 
-
-
-	}
-
+	else return -9999; //error
 }
 
 int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout)
 {
-	switch (atoi(op.c_str()))
+
+	if (B_inv == 1)
 	{
-	case 00: // AND
-		//cout = cin; //Assignment shows both no cout and there being a cout in AND case
-		return (a & b);
-		break;
-
-	case 01: // OR
-		//cout = cin; 
-		return (a | b);
-		break;
-
-	case 10: // ADD
-
-		// if B_inv = 0 and b = 1, b = 1 or if b = 0, b = 0; 
-		// if B_inv = 1 and b = 1, b = 0, or if b = 0, b = 1
-		b = (B_inv ^ b);
-
-		cout = (a & b) | (cin & (a ^ b));
-		return (a ^ b ^ cin);
-		break;
-
-
+		if (b == 0)
+			b = 1;
+		else
+			b = 0;
 	}
+
+	int and_out = AND_gate(a, b);
+	int or_out = OR_gate(a, b);
+	int adder_out = full_adder(a, b, cin, cout);
+	return(mux_4x1(and_out, or_out, adder_out, 0, op));
 
 }
 
 // MQ-1 = LSB_MQ
 
-int ALU_16bit(int inpMQ, int inpMD, int B_inv16, int cin16, string op16, int& cout) // Op code for and, or, add, sub
+
+int ALU_16bit(int a[], int b[], int B_inv, string op) // Op code for and, or, add, sub
 {
-	int binMQ = inpMQ;
-	int binMD = inpMD;
+
 
 
 	for (int i = 16; i > 0; i--) // decreement from MQ MD
@@ -297,8 +320,8 @@ int ALU_16bit(int inpMQ, int inpMD, int B_inv16, int cin16, string op16, int& co
 		// Given input of 16-bits, we constantly doing actions
 		cout = 0;
 		// a is bit from top part, b is bit from bottom
-		ALU_1bit(LSB_MQ, LSB_MD, B_inv, cin, op, &cout);
-		cout = cin;
+	//	ALU_1bit(LSB_MQ, LSB_MD, B_inv, cin, op, &cout);
+	//	cout = cin;
 		
 		binMQ = binMQ >> 1; // Shifts the integer to next bit
 		binMD = binMD >> 1;
@@ -308,7 +331,7 @@ int ALU_16bit(int inpMQ, int inpMD, int B_inv16, int cin16, string op16, int& co
 
 	}
 
-
+	return 0;
 }
 
 
