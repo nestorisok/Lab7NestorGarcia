@@ -1,6 +1,7 @@
 #include <iostream>
 #include <bitset>
 #include <iomanip>
+#include <string>
 
 using namespace std;
 // This program demonstrates how a 1-Bit ALU functions when recieving different opcodes
@@ -80,34 +81,77 @@ int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout);
 
 void ALU_results(string inp);
 
-int ALU_16bit(int inpMQ[], int inpMD[], int B_inv, int cin, string op, int& cout);
+int* ALU_16bit(int a[], int b[], int B_inv, string op);
+
+int* boothAlg(int MD[], int MQ[]);
 
 void stringToArr(string valInp, int arrInp[]);
 
 const int bitSize = 16;
+int res[bitSize];
 int main()
 {
 	string valA, valB;
 	int aBit[bitSize];
 	int bBit[bitSize];
 
+	/**/
+	cout << "These are 16-bit values" << endl;
+	cout << "***********************" << endl;
+
 
 	cout << "Enter first value: ";
-	cin >> setw(bitSize) >> valA;
+	getline(cin, valA);
 	stringToArr(valA, aBit);
+
+	//cin >> skipws >> setw(bitSize) >> valA;
 
 
 	cout << "Enter second value: ";
-	cin >> setw(bitSize) >> valB;
+	getline(cin, valB);
 	stringToArr(valB, bBit);
 
 
+
+	/*
 	for (int i = 0; i < bitSize; i++)
 	{
-		cout << aBit[i] << endl;
+
+		cout << "i: " << i << endl;
+		cout << "A: " << aBit[i] << endl;
+		cout << "B: " << bBit[i] << endl;
+
 	}
+	/*
+	
+	// prints the result array
+	for (int i = 0; i < bitSize; i++)
+	{
+		if (i % 4 == 0 && i != 0)
+			cout << " ";
 
 
+		cout << res[i];
+
+	}
+	/**/
+
+
+	//cout << ALU_16bit(aBit, bBit, 0, "00") << endl;
+	
+
+	int* arrPtr;
+	arrPtr = ALU_16bit(aBit, bBit, 0, "00");
+
+	// prints the result array
+	for (int i = 0; i < bitSize; i++)
+	{
+		if (i % 4 == 0 && i != 0)
+			cout << " ";
+
+
+		cout << arrPtr[i];
+	}
 
 
 	/*
@@ -115,7 +159,7 @@ int main()
 	ALU_results("OR");
 	ALU_results("ADD");
 	ALU_results("SUB");
-	*/
+	/**/
 
 
 
@@ -124,12 +168,17 @@ int main()
 
 void stringToArr(string valInp, int arrInp[])
 {
+	int arrCtr = 0;
 	char c;
-	for (int i = 0; i < valInp.length(); i++)
+	for (int i = 0; i < valInp.length(); i++) // keeps it under 16 chars, telling user to input 16
 	{
-
-		c = valInp[i];
-		arrInp[i] = atoi(&c);
+		c = valInp.at(i);
+		//cout << "VAL[i]: " << valInp.at(i) << endl;
+		if (c != ' ')
+		{
+			arrInp[arrCtr] = atoi(&c);
+			arrCtr++;
+		}
 	}
 
 
@@ -287,26 +336,33 @@ int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout)
 	int and_out = AND_gate(a, b);
 	int or_out = OR_gate(a, b);
 	int adder_out = full_adder(a, b, cin, cout);
-	return(mux_4x1(and_out, or_out, adder_out, 0, op));
+
+	
+
+
+	return (mux_4x1(and_out, or_out, adder_out, 0, op));
 
 }
 
 // MQ-1 = LSB_MQ
 
 
-int ALU_16bit(int a[], int b[], int B_inv, string op) // Op code for and, or, add, sub
+int* ALU_16bit(int a[], int b[], int B_inv, string op) // Op code for and, or, add, sub
 {
+	int cout = 0;
+	//res[bitSize - 1] = ALU_1bit(a[bitSize - 1], b[bitSize - 1], B_inv, B_inv, op, cout);
+	int tempCout = cout;
+	static int res[bitSize];
 
-
-
-	for (int i = 16; i > 0; i--) // decreement from MQ MD
+	for (int i = bitSize - 1; i >= 0; i--) // decreement from MQ MD
 	{
-		int LSB_MQ = binMQ % 10; // bit0, least significant bits for MQ and MD
-		int LSB_MD = binMD % 10;
+		res[i] = ALU_1bit(a[i], b[i], B_inv, tempCout, op, cout);
+		tempCout = cout;
+
 
 		// Here I would need to initiate the ALU0
-		// To do so, some input would change B_inv
-		// example if we want to sub the two values, we set B_inv to 1
+		// To do so, some input would change B_inv		// example if we want to sub the two values, we set B_inv to 1
+
 		// and op code to 10 to use adder
 		// AND would be 00 with no cin, b-inv, or cout
 		// to implement ADD/SUB, the carry in could be changed to whatever given data has and 
@@ -318,23 +374,66 @@ int ALU_16bit(int a[], int b[], int B_inv, string op) // Op code for and, or, ad
 
 
 		// Given input of 16-bits, we constantly doing actions
-		cout = 0;
+		//cout = 0;
 		// a is bit from top part, b is bit from bottom
 	//	ALU_1bit(LSB_MQ, LSB_MD, B_inv, cin, op, &cout);
 	//	cout = cin;
 		
-		binMQ = binMQ >> 1; // Shifts the integer to next bit
-		binMD = binMD >> 1;
 
 		//int cin = cout;
 
-
 	}
+	return res;
 
-	return 0;
+	/*
+	std::cout << "\n";
+	for (int i = 0; i < bitSize; i++)
+	{
+		std::cout << "i: " << i << "\n" << "VAL: " << res[i] << endl;
+	}
+	/**/
+
+	
 }
 
+int* boothAlg(int MD[], int MQ[])
+{
+	int MQ_1 = 0;	// initially set to 0
 
+	// Initialize values
+
+	for (int i = bitSize - 1; i >= 0; i--) // decreement from MQ MD
+	{
+
+
+		if (MQ[bitSize - 1] == 0 && MQ_1 == 0)	// AC = AC + 0
+		{
+
+		}
+		if (MQ[bitSize - 1] == 0 && MQ_1 == 1)	// AC = AC + MD
+		{
+
+		}
+		if (MQ[bitSize - 1] == 1 && MQ_1 == 0)	// AC = AC - MD
+		{
+
+		}
+		if (MQ[bitSize - 1] == 1 && MQ_1 == 1)	// AC = AC + 0
+		{
+
+		}
+
+
+
+		// shifts down here
+	}
+
+
+
+	// returns product; // AC / MQ
+
+	return 0; // temp
+}
 
 
 ////// AND results
