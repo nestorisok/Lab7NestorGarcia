@@ -79,37 +79,40 @@ int mux_4x1(int x1, int x2, int x3, int x4, string op);
 int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout);
 
 
-void ALU_results(string inp);
+void ALU_results(string inp);	// Displays various outcomes for our 1-bit ALU
 
-int* ALU_16bit(int a[], int b[], int B_inv, string op);
+int* ALU_16bit(int a[], int b[], int B_inv, string op);	// 16 - bit ALU using 1 - bit ALU component 16 times
 
-int* boothAlg(int MD[], int MQ[]);
+int* boothAlg(int MD[], int MQ[]);	// Booth alg implemented
 
-void stringToArr(string valInp, int arrInp[]);
+void stringToArr(string valInp, int arrInp[]);	// converts users string input into an array
 
-const int bitSize = 16;
-int res[bitSize];
+void display(int* product);		// Displays arrays
+void rightShift(int* arrInp);	// Shifts array
+
+
+const int bitSize16 = 16;
 int main()
 {
 	string valA, valB;
-	int aBit[bitSize];
-	int bBit[bitSize];
+	int userMD[bitSize16];
+	int userMQ[bitSize16];
 
 	/**/
 	cout << "These are 16-bit values" << endl;
 	cout << "***********************" << endl;
 
 
-	cout << "Enter first value: ";
+	cout << "Enter MD: ";
 	getline(cin, valA);
-	stringToArr(valA, aBit);
+	stringToArr(valA, userMD);
 
 	//cin >> skipws >> setw(bitSize) >> valA;
 
 
-	cout << "Enter second value: ";
+	cout << "Enter MQ: ";
 	getline(cin, valB);
-	stringToArr(valB, bBit);
+	stringToArr(valB, userMQ);
 
 
 
@@ -139,12 +142,12 @@ int main()
 
 	//cout << ALU_16bit(aBit, bBit, 0, "00") << endl;
 	
-
+	/*
 	int* arrPtr;
-	arrPtr = ALU_16bit(aBit, bBit, 0, "00");
+	arrPtr = ALU_16bit(userMD, userMQ, 0, "00");
 
 	// prints the result array
-	for (int i = 0; i < bitSize; i++)
+	for (int i = 0; i < bitSize16; i++)
 	{
 		if (i % 4 == 0 && i != 0)
 			cout << " ";
@@ -153,6 +156,27 @@ int main()
 		cout << arrPtr[i];
 	}
 
+	cout << "\n";
+
+	rightShift(arrPtr);
+
+	display(arrPtr);
+	/**/
+
+	
+	int* product = boothAlg(userMD, userMQ);
+
+	cout << "\nProduct: ";
+
+	for (int i = 0; i < bitSize16 + bitSize16; i++)
+	{
+		if (i % 4 == 0 && i != 0)
+			cout << " ";
+
+
+		cout << product[i];
+	}
+	/**/
 
 	/*
 	ALU_results("AND");
@@ -164,6 +188,36 @@ int main()
 
 
 	return 0;
+}
+
+void display(int* product)
+{
+
+	for (int i = 0; i < bitSize16; i++)
+	{
+		if (i % 4 == 0 && i != 0)
+			cout << " ";
+
+
+		cout << product[i];
+	}
+}
+
+
+void rightShift(int arrInp[])// Shifts array
+{
+
+	//for (int i = bitSize - 1; i >= 0; i--) // decreement from MQ MD
+
+	
+	//int temp = arrInp[0];	// MSB, signed bit
+
+	for (int i = bitSize16 - 1; i >= 0; i--)
+	{
+		arrInp[i] = arrInp[i - 1];
+
+	}
+	//arrInp[0] = temp;
 }
 
 void stringToArr(string valInp, int arrInp[])
@@ -352,9 +406,9 @@ int* ALU_16bit(int a[], int b[], int B_inv, string op) // Op code for and, or, a
 	int cout = 0;
 	//res[bitSize - 1] = ALU_1bit(a[bitSize - 1], b[bitSize - 1], B_inv, B_inv, op, cout);
 	int tempCout = cout;
-	static int res[bitSize];
+	static int res[bitSize16];
 
-	for (int i = bitSize - 1; i >= 0; i--) // decreement from MQ MD
+	for (int i = bitSize16 - 1; i >= 0; i--) // decreement from MQ MD
 	{
 		res[i] = ALU_1bit(a[i], b[i], B_inv, tempCout, op, cout);
 		tempCout = cout;
@@ -402,37 +456,114 @@ int* boothAlg(int MD[], int MQ[])
 
 	// Initialize values
 
-	for (int i = bitSize - 1; i >= 0; i--) // decreement from MQ MD
+	int zeroArr[bitSize16] = { 0 };
+	int cycleCounter = { 1 };
+
+	int AC[bitSize16] = { 0 };
+	int* ACptr = AC;
+	
+	
+
+	// Inital step
+
+	cout << "Initial Setup" << endl;
+	cout << "**************" << endl;
+	cout << "MD\t\t\tAC\t\t\tMQ\t\t\t\t\tMQ-1" << endl;
+	cout << "************************************************************************************" << endl;
+
+
+	display(MD);
+	cout << "\t";
+	display(AC);
+	cout << "\t";
+	display(MQ);
+	cout << "\t";
+	cout << MQ_1;
+	cout << endl;
+
+	for (int i = bitSize16 - 1; i >= 0; i--) // decreement from MQ MD
 	{
 
 
-		if (MQ[bitSize - 1] == 0 && MQ_1 == 0)	// AC = AC + 0
+		if (MQ[bitSize16 - 1] == 0 && MQ_1 == 0)	// AC = AC + 0
 		{
-
+			ACptr = ALU_16bit(AC, zeroArr, 0, "10");
+			for (int i = 0; i < bitSize16; i++)
+			{
+				AC[i] = ACptr[i];
+				//cout << AC[i];
+			}
 		}
-		if (MQ[bitSize - 1] == 0 && MQ_1 == 1)	// AC = AC + MD
+		if (MQ[bitSize16 - 1] == 0 && MQ_1 == 1)	// AC = AC + MD
 		{
-
+			ACptr = ALU_16bit(AC, MD, 0, "10");
+			for (int i = 0; i < bitSize16; i++)
+			{
+				AC[i] = ACptr[i];
+				//out << AC[i];
+			}
 		}
-		if (MQ[bitSize - 1] == 1 && MQ_1 == 0)	// AC = AC - MD
+		if (MQ[bitSize16 - 1] == 1 && MQ_1 == 0)	// AC = AC - MD
 		{
-
+			ACptr = ALU_16bit(AC, MD, 1, "10");
+			for (int i = 0; i < bitSize16; i++)
+			{
+				AC[i] = ACptr[i];
+				//cout << AC[i];
+			}
 		}
-		if (MQ[bitSize - 1] == 1 && MQ_1 == 1)	// AC = AC + 0
+		if (MQ[bitSize16 - 1] == 1 && MQ_1 == 1)	// AC = AC + 0
 		{
-
+			ACptr = ALU_16bit(AC, zeroArr, 0, "10");
+			for (int i = 0; i < bitSize16; i++)
+			{
+				AC[i] = ACptr[i];
+				//cout << AC[i];
+			}
 		}
 
 
 
-		// shifts down here
+
+
+
+		int msbAC = AC[0];
+		int lsbAC = AC[bitSize16 - 1];
+		rightShift(AC);
+		AC[0] = msbAC;
+
+		int lsbMQ = MQ[bitSize16 - 1];
+		MQ_1 = lsbMQ;
+
+		rightShift(MQ);
+		MQ[0] = lsbAC;
+
+
+		display(MD);
+		cout << "\t";
+		display(AC);
+		cout << "\t";
+		display(MQ);
+		cout << "\t";
+		cout << MQ_1;
+		cout << endl;
+
 	}
 
+	static int product[bitSize16 + bitSize16];
 
+	for (int i = 0; i < bitSize16; i++)
+	{
+		product[i] = AC[i];
+	}
+	for (int j = 0; j < bitSize16; j++)
+	{
+		product[bitSize16 + j] = MQ[j];
 
+	}
 	// returns product; // AC / MQ
 
-	return 0; // temp
+	return product; // temp
 }
 
 
