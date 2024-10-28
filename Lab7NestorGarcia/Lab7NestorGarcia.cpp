@@ -11,65 +11,6 @@ using namespace std;
 // either get 0 or 1. Allowing us to get every result for the 3 bits of a,b,CIN and applying the ALU function
 // Applying Binv to 0 for every loop since it is not being used, and having the result be the output of ALU function
 
-
-
-/*
-	BOOTHS ALG
-	----------
-	MQ0		MQ-1
-
-	0		0	AC
-	1		1	AC
-	0		1	AC <- AC + MD	// 16-bit addition
-	1		0	AC <- AC - MD	// 16-bit subtraction
-
-
-	2. AC | MQ | MD >> 1 (Arithmatic)
-
-	3. Counter--;
-
-	input - MD->16 bits / MQ->16 bits / AC->16 bits
-
-
-	ex
-	ALU 16()
-	{
-	// Runs for 16 times (16-bits)
-		ALU1() // MQ[15]  MD[15]
-		ALU1() // MQ[14]  MD[14]
-
-
-		returns MQ, MD
-	}
-
-	// ALU0 cout is ALU1's CIN
-
-	BOOTHS ALG()
-	{
-	// Runs for 16 time
-	// vvvvvvv
-
-		if(mq0 = 0 && mq-1 = 1)
-		{
-		ALU16(add);
-		}
-		if(MQ0 = 1 & MQ-1 = 0)
-		{
-		ALU16(sub);
-		}
-
-		Right shift(MD, MQ, AC)
-	// ^^^^^^^^^
-		Binary counter;		// Each step counter displayed // Displays MD	AC	MQ	MQ-1
-		return product;
-
-
-	}
-
-
-
-*/
-
 int AND_gate(int a, int b);
 int OR_gate(int a, int b);
 
@@ -90,8 +31,6 @@ void stringToArr(string valInp, int arrInp[]);	// converts users string input in
 void display16B(int* product);		// Displays arrays
 void rightShift(int arrInp[]);	// Shifts array
 
-void cycle_counter(int* count);
-
 
 const int bitSize16 = 16;
 int main()
@@ -101,7 +40,6 @@ int main()
 	int userMQ[bitSize16];
 
 
-	/**/
 	cout << "These are 16-bit values" << endl;
 	cout << "***********************" << endl;
 
@@ -110,63 +48,12 @@ int main()
 	getline(cin, valA);
 	stringToArr(valA, userMD);
 
-	//cin >> skipws >> setw(bitSize) >> valA;
-
 
 	cout << "Enter MQ: ";
 	getline(cin, valB);
 	stringToArr(valB, userMQ);
 
 
-
-	/*
-	for (int i = 0; i < bitSize; i++)
-	{
-
-		cout << "i: " << i << endl;
-		cout << "A: " << aBit[i] << endl;
-		cout << "B: " << bBit[i] << endl;
-
-	}
-	/*
-	
-	// prints the result array
-	for (int i = 0; i < bitSize; i++)
-	{
-		if (i % 4 == 0 && i != 0)
-			cout << " ";
-
-
-		cout << res[i];
-
-	}
-	/**/
-
-
-	//cout << ALU_16bit(aBit, bBit, 0, "00") << endl;
-	
-	/*
-	int* arrPtr;
-	arrPtr = ALU_16bit(userMD, userMQ, 0, "00");
-
-	// prints the result array
-	for (int i = 0; i < bitSize16; i++)
-	{
-		if (i % 4 == 0 && i != 0)
-			cout << " ";
-
-
-		cout << arrPtr[i];
-	}
-
-	cout << "\n";
-
-	rightShift(arrPtr);
-
-	display(arrPtr);
-	/**/
-
-	
 	int* product = boothAlg(userMD, userMQ);
 
 	cout << "\nProduct: ";
@@ -179,15 +66,6 @@ int main()
 
 		cout << product[i];
 	}
-	/**/
-
-	/*
-	ALU_results("AND");
-	ALU_results("OR");
-	ALU_results("ADD");
-	ALU_results("SUB");
-	/**/
-
 
 
 	return 0;
@@ -210,47 +88,32 @@ void display16B(int* product)
 void rightShift(int arrInp[])// Shifts array
 {
 
-	//for (int i = bitSize - 1; i >= 0; i--) // decreement from MQ MD
-
-	
-	//int temp = arrInp[0];	// MSB, signed bit
-
 	for (int i = bitSize16 - 1; i >= 0; i--)
 	{
 		arrInp[i] = arrInp[i - 1];
 
 	}
-	//arrInp[0] = temp;
+
 }
 
 void stringToArr(string valInp, int arrInp[])
 {
-	int arrCtr = 0;
+	int arrCtr = 0; // counter for array itself
 	char c;
-	for (int i = 0; i < valInp.length(); i++) // keeps it under 16 chars, telling user to input 16
-	{
-		c = valInp.at(i);
-		//cout << "VAL[i]: " << valInp.at(i) << endl;
-		if (c != ' ')
+
+		for (int i = 0; i < valInp.length(); i++) // keeps it under 16 chars, telling user to input 16
 		{
-			arrInp[arrCtr] = atoi(&c);
-			arrCtr++;
+			c = valInp.at(i);
+			if (c != ' ' && arrCtr != bitSize16)	// Skips white space and does not go past our array size
+			{
+				arrInp[arrCtr] = atoi(&c);
+				arrCtr++;
+			}
 		}
-	}
 
-
+	
 }
 
-void cycle_counter(int* count)
-{
-	int myNum = *count;
-	if (myNum >= 0)
-	{
-		bitset<4> binary(myNum);
-		cout << binary << endl;
-		myNum--;
-	}
-}
 
 // Takes in string input to chose from different outputs
 void ALU_results(string inp)
@@ -450,7 +313,7 @@ int* boothAlg(int MD[], int MQ[])
 
 
 	cout << "\ncycle_counter\tMD\t\t\tAC\t\t\tMQ\t\t\tMQ-1" << endl;
-	cout << "*******************************************************************************************************************" << endl;
+	cout << "***************************************************************************************************" << endl;
 
 
 
