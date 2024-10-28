@@ -195,7 +195,7 @@ void display(int* product)
 
 	for (int i = 0; i < bitSize16; i++)
 	{
-		if (i % 4 == 0 && i != 0)
+		if (i % 16 == 0 && i != 0)
 			cout << " ";
 
 
@@ -403,7 +403,7 @@ int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout)
 
 int* ALU_16bit(int a[], int b[], int B_inv, string op) // Op code for and, or, add, sub
 {
-	int cout = 0;
+	int cout = B_inv;
 	//res[bitSize - 1] = ALU_1bit(a[bitSize - 1], b[bitSize - 1], B_inv, B_inv, op, cout);
 	int tempCout = cout;
 	static int res[bitSize16];
@@ -472,6 +472,7 @@ int* boothAlg(int MD[], int MQ[])
 	cout << "************************************************************************************" << endl;
 
 
+
 	display(MD);
 	cout << "\t";
 	display(AC);
@@ -522,9 +523,16 @@ int* boothAlg(int MD[], int MQ[])
 			}
 		}
 
+		cout << '\n';
 
-
-
+		display(MD);
+		cout << "\t";
+		display(AC);
+		cout << "\t";
+		display(MQ);
+		cout << "\t";
+		cout << MQ_1;
+		cout << endl;
 
 
 		int msbAC = AC[0];
