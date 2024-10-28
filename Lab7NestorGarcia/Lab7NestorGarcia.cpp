@@ -170,7 +170,7 @@ int main()
 
 	for (int i = 0; i < bitSize16 + bitSize16; i++)		// Outputs our 32-bit result
 	{
-		if (i % 4 == 0 && i != 0)
+		if (i % 16 == 0 && i != 0)
 			cout << " ";
 
 
