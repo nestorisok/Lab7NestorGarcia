@@ -503,7 +503,7 @@ int* boothAlg(int MD[], int MQ[])
 			//bitset<4> cycle_counter(counterSize); // Could work if we do while loop for who thing instead of for loop
 
 
-			if (MQ[bitSize16 - 1] == 0 && MQ_1 == 0)	// AC = AC + 0
+			if (MQ[bitSize16 - 1] == 0 && MQ_1 == 0)	// AC = AC + 0 // bitSize - 1 is lsb 
 			{
 				ACptr = ALU_16bit(AC, zeroArr, 0, "10");
 				for (int i = 0; i < bitSize16; i++)
