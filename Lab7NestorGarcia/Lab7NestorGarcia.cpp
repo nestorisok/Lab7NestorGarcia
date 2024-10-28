@@ -500,6 +500,7 @@ int* boothAlg(int MD[], int MQ[])
 
 		for (int i = bitSize16 - 1; i >= 0; i--) // decreement from MQ MD
 		{
+			//bitset<4> cycle_counter(counterSize); // Could work if we do while loop for who thing instead of for loop
 
 
 			if (MQ[bitSize16 - 1] == 0 && MQ_1 == 0)	// AC = AC + 0
