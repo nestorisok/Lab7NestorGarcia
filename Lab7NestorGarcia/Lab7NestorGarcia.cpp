@@ -87,8 +87,10 @@ int* boothAlg(int MD[], int MQ[]);	// Booth alg implemented
 
 void stringToArr(string valInp, int arrInp[]);	// converts users string input into an array
 
-void display(int* product);		// Displays arrays
-void rightShift(int* arrInp);	// Shifts array
+void display16B(int* product);		// Displays arrays
+void rightShift(int arrInp[]);	// Shifts array
+
+void cycle_counter(int* count);
 
 
 const int bitSize16 = 16;
@@ -97,6 +99,7 @@ int main()
 	string valA, valB;
 	int userMD[bitSize16];
 	int userMQ[bitSize16];
+
 
 	/**/
 	cout << "These are 16-bit values" << endl;
@@ -190,7 +193,7 @@ int main()
 	return 0;
 }
 
-void display(int* product)
+void display16B(int* product)
 {
 
 	for (int i = 0; i < bitSize16; i++)
@@ -238,7 +241,16 @@ void stringToArr(string valInp, int arrInp[])
 
 }
 
-
+void cycle_counter(int* count)
+{
+	int myNum = *count;
+	if (myNum >= 0)
+	{
+		bitset<4> binary(myNum);
+		cout << binary << endl;
+		myNum--;
+	}
+}
 
 // Takes in string input to chose from different outputs
 void ALU_results(string inp)
@@ -401,6 +413,8 @@ int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout)
 // MQ-1 = LSB_MQ
 
 
+
+
 int* ALU_16bit(int a[], int b[], int B_inv, string op) // Op code for and, or, add, sub
 {
 	int cout = B_inv;
@@ -457,106 +471,115 @@ int* boothAlg(int MD[], int MQ[])
 	// Initialize values
 
 	int zeroArr[bitSize16] = { 0 };
-	int cycleCounter = { 1 };
 
 	int AC[bitSize16] = { 0 };
 	int* ACptr = AC;
-	
-	
 
-	// Inital step
-
-	cout << "Initial Setup" << endl;
-	cout << "**************" << endl;
-	cout << "MD\t\t\tAC\t\t\tMQ\t\t\t\t\tMQ-1" << endl;
-	cout << "************************************************************************************" << endl;
+	int counterSize = 15;
+	bitset<4> cycle_counter(counterSize);
 
 
+	//cout << counter_cycle << endl;
+	//counterSize--;
 
-	display(MD);
+	cout << "\ncycle_counter\tMD\t\t\tAC\t\t\tMQ\t\t\tMQ-1" << endl;
+	cout << "*******************************************************************************************************************" << endl;
+
+	cout << counterSize << " ";
+	cout << cycle_counter;
+	cout << "\t\t";
+	display16B(MD);
 	cout << "\t";
-	display(AC);
+	display16B(AC);
 	cout << "\t";
-	display(MQ);
+	display16B(MQ);
 	cout << "\t";
 	cout << MQ_1;
 	cout << endl;
 
-	for (int i = bitSize16 - 1; i >= 0; i--) // decreement from MQ MD
-	{
 
-
-		if (MQ[bitSize16 - 1] == 0 && MQ_1 == 0)	// AC = AC + 0
+		for (int i = bitSize16 - 1; i >= 0; i--) // decreement from MQ MD
 		{
-			ACptr = ALU_16bit(AC, zeroArr, 0, "10");
-			for (int i = 0; i < bitSize16; i++)
+
+
+			if (MQ[bitSize16 - 1] == 0 && MQ_1 == 0)	// AC = AC + 0
 			{
-				AC[i] = ACptr[i];
-				//cout << AC[i];
+				ACptr = ALU_16bit(AC, zeroArr, 0, "10");
+				for (int i = 0; i < bitSize16; i++)
+				{
+					AC[i] = ACptr[i];
+					//cout << AC[i];
+				}
 			}
-		}
-		if (MQ[bitSize16 - 1] == 0 && MQ_1 == 1)	// AC = AC + MD
-		{
-			ACptr = ALU_16bit(AC, MD, 0, "10");
-			for (int i = 0; i < bitSize16; i++)
+			if (MQ[bitSize16 - 1] == 0 && MQ_1 == 1)	// AC = AC + MD
 			{
-				AC[i] = ACptr[i];
-				//out << AC[i];
+				ACptr = ALU_16bit(AC, MD, 0, "10");
+				for (int i = 0; i < bitSize16; i++)
+				{
+					AC[i] = ACptr[i];
+					//out << AC[i];
+				}
 			}
-		}
-		if (MQ[bitSize16 - 1] == 1 && MQ_1 == 0)	// AC = AC - MD
-		{
-			ACptr = ALU_16bit(AC, MD, 1, "10");
-			for (int i = 0; i < bitSize16; i++)
+			if (MQ[bitSize16 - 1] == 1 && MQ_1 == 0)	// AC = AC - MD
 			{
-				AC[i] = ACptr[i];
-				//cout << AC[i];
+				ACptr = ALU_16bit(AC, MD, 1, "10");
+				for (int i = 0; i < bitSize16; i++)
+				{
+					AC[i] = ACptr[i];
+					//cout << AC[i];
+				}
 			}
-		}
-		if (MQ[bitSize16 - 1] == 1 && MQ_1 == 1)	// AC = AC + 0
-		{
-			ACptr = ALU_16bit(AC, zeroArr, 0, "10");
-			for (int i = 0; i < bitSize16; i++)
+			if (MQ[bitSize16 - 1] == 1 && MQ_1 == 1)	// AC = AC + 0
 			{
-				AC[i] = ACptr[i];
-				//cout << AC[i];
+				ACptr = ALU_16bit(AC, zeroArr, 0, "10");
+				for (int i = 0; i < bitSize16; i++)
+				{
+					AC[i] = ACptr[i];
+					//cout << AC[i];
+				}
 			}
+
+			cout << '\n';
+
+			cout << counterSize << " ";
+			cout << cycle_counter;
+			cout << "\t\t";
+			display16B(MD);
+			cout << "\t";
+			display16B(AC);
+			cout << "\t";
+			display16B(MQ);
+			cout << "\t";
+			cout << MQ_1;
+			cout << endl;
+
+
+			int msbAC = AC[0];
+			int lsbAC = AC[bitSize16 - 1];
+			rightShift(AC);
+			AC[0] = msbAC;
+
+			int lsbMQ = MQ[bitSize16 - 1];
+			MQ_1 = lsbMQ;
+
+			rightShift(MQ);
+			MQ[0] = lsbAC;
+
+			cout << counterSize << " ";
+			cout << cycle_counter;
+			cout << "\t\t";
+			display16B(MD);
+			cout << "\t";
+			display16B(AC);
+			cout << "\t";
+			display16B(MQ);
+			cout << "\t";
+			cout << MQ_1;
+			cout << endl;
+
+			counterSize--;
 		}
 
-		cout << '\n';
-
-		display(MD);
-		cout << "\t";
-		display(AC);
-		cout << "\t";
-		display(MQ);
-		cout << "\t";
-		cout << MQ_1;
-		cout << endl;
-
-
-		int msbAC = AC[0];
-		int lsbAC = AC[bitSize16 - 1];
-		rightShift(AC);
-		AC[0] = msbAC;
-
-		int lsbMQ = MQ[bitSize16 - 1];
-		MQ_1 = lsbMQ;
-
-		rightShift(MQ);
-		MQ[0] = lsbAC;
-
-
-		display(MD);
-		cout << "\t";
-		display(AC);
-		cout << "\t";
-		display(MQ);
-		cout << "\t";
-		cout << MQ_1;
-		cout << endl;
-
-	}
 
 	static int product[bitSize16 + bitSize16];
 
