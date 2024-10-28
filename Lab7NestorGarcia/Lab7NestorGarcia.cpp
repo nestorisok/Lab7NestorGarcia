@@ -417,50 +417,21 @@ int ALU_1bit(int a, int b, int B_inv, int cin, string op, int& cout)
 
 int* ALU_16bit(int a[], int b[], int B_inv, string op) // Op code for and, or, add, sub
 {
-	int cout = B_inv;
+	int cout = B_inv; // Initially cout is B_inv so 
 	//res[bitSize - 1] = ALU_1bit(a[bitSize - 1], b[bitSize - 1], B_inv, B_inv, op, cout);
-	int tempCout = cout;
-	static int res[bitSize16];
+	int tempCin = cout;	// used for first call of ALU
+	static int res[bitSize16];	// local array to return
 
 	for (int i = bitSize16 - 1; i >= 0; i--) // decreement from MQ MD
 	{
-		res[i] = ALU_1bit(a[i], b[i], B_inv, tempCout, op, cout);
-		tempCout = cout;
+		res[i] = ALU_1bit(a[i], b[i], B_inv, tempCin, op, cout);
+		tempCin = cout;	// tempCin holds carryOut from previous ALU_1bit call and inputs it back as next carry-in input
 
 
-		// Here I would need to initiate the ALU0
-		// To do so, some input would change B_inv		// example if we want to sub the two values, we set B_inv to 1
-
-		// and op code to 10 to use adder
-		// AND would be 00 with no cin, b-inv, or cout
-		// to implement ADD/SUB, the carry in could be changed to whatever given data has and 
-		// ALU0 carrout becomes ALU1's carry-in to use for next instruction
-		// What stays constant between ALU calls is only the op code
-		// could be a switch statement with enums to have AND/OR/ADD/SUB
-		// We could iterate through integers and perform given tasks
-
-
-
-		// Given input of 16-bits, we constantly doing actions
-		//cout = 0;
-		// a is bit from top part, b is bit from bottom
-	//	ALU_1bit(LSB_MQ, LSB_MD, B_inv, cin, op, &cout);
-	//	cout = cin;
-		
-
-		//int cin = cout;
 
 	}
-	return res;
 
-	/*
-	std::cout << "\n";
-	for (int i = 0; i < bitSize; i++)
-	{
-		std::cout << "i: " << i << "\n" << "VAL: " << res[i] << endl;
-	}
-	/**/
-
+	return res; // returns array res
 	
 }
 
@@ -470,46 +441,46 @@ int* boothAlg(int MD[], int MQ[])
 
 	// Initialize values
 
-	int zeroArr[bitSize16] = { 0 };
+	int zeroArr[bitSize16] = { 0 }; // Simply an array of zeros for AC <- AC + 0
 
-	int AC[bitSize16] = { 0 };
-	int* ACptr = AC;
+	int AC[bitSize16] = { 0 };	// our AC array intially filled with 0's
+	int* ACptr = AC;	// pointer for our array
 
-	int counterSize = 15;
-	bitset<4> cycle_counter(counterSize);
+	int counterSize = bitSize16 - 1;	// Using our bitSize for input -1 to be able to perform opperation
 
-
-	//cout << counter_cycle << endl;
-	//counterSize--;
 
 	cout << "\ncycle_counter\tMD\t\t\tAC\t\t\tMQ\t\t\tMQ-1" << endl;
 	cout << "*******************************************************************************************************************" << endl;
 
-	cout << counterSize << " ";
-	cout << cycle_counter;
-	cout << "\t\t";
-	display16B(MD);
-	cout << "\t";
-	display16B(AC);
-	cout << "\t";
-	display16B(MQ);
-	cout << "\t";
-	cout << MQ_1;
-	cout << endl;
 
 
-		for (int i = bitSize16 - 1; i >= 0; i--) // decreement from MQ MD
+	while (counterSize >= 0)
+	{
+		bitset<4> cycle_counter(counterSize);
+
+		if (counterSize == bitSize16 - 1)	// Outputs our initial values that user has given
 		{
+			//cout << counterSize << " ";
+			cout << cycle_counter;
+			cout << "\t\t";
+			display16B(MD);
+			cout << "\t";
+			display16B(AC);
+			cout << "\t";
+			display16B(MQ);
+			cout << "\t";
+			cout << MQ_1;
+			cout << endl;
+		}
 			//bitset<4> cycle_counter(counterSize); // Could work if we do while loop for who thing instead of for loop
 
 
 			if (MQ[bitSize16 - 1] == 0 && MQ_1 == 0)	// AC = AC + 0 // bitSize - 1 is lsb 
 			{
-				ACptr = ALU_16bit(AC, zeroArr, 0, "10");
-				for (int i = 0; i < bitSize16; i++)
+				ACptr = ALU_16bit(AC, zeroArr, 0, "10");	// ACptr recieves array returned from ALU_16bit
+				for (int i = 0; i < bitSize16; i++)			// AC[] recieves data from ACptr
 				{
 					AC[i] = ACptr[i];
-					//cout << AC[i];
 				}
 			}
 			if (MQ[bitSize16 - 1] == 0 && MQ_1 == 1)	// AC = AC + MD
@@ -518,7 +489,6 @@ int* boothAlg(int MD[], int MQ[])
 				for (int i = 0; i < bitSize16; i++)
 				{
 					AC[i] = ACptr[i];
-					//out << AC[i];
 				}
 			}
 			if (MQ[bitSize16 - 1] == 1 && MQ_1 == 0)	// AC = AC - MD
@@ -527,7 +497,6 @@ int* boothAlg(int MD[], int MQ[])
 				for (int i = 0; i < bitSize16; i++)
 				{
 					AC[i] = ACptr[i];
-					//cout << AC[i];
 				}
 			}
 			if (MQ[bitSize16 - 1] == 1 && MQ_1 == 1)	// AC = AC + 0
@@ -536,13 +505,11 @@ int* boothAlg(int MD[], int MQ[])
 				for (int i = 0; i < bitSize16; i++)
 				{
 					AC[i] = ACptr[i];
-					//cout << AC[i];
 				}
 			}
 
 			cout << '\n';
 
-			cout << counterSize << " ";
 			cout << cycle_counter;
 			cout << "\t\t";
 			display16B(MD);
@@ -555,18 +522,19 @@ int* boothAlg(int MD[], int MQ[])
 			cout << endl;
 
 
-			int msbAC = AC[0];
-			int lsbAC = AC[bitSize16 - 1];
-			rightShift(AC);
-			AC[0] = msbAC;
+			int msbAC = AC[0];	// hold the signbit from AC
+			int lsbAC = AC[bitSize16 - 1];	// holds lsb from AC
+			rightShift(AC);		// moves values over to the right in AC
+			AC[0] = msbAC;		// the new signed bit recieves the value held from MSB
 
-			int lsbMQ = MQ[bitSize16 - 1];
-			MQ_1 = lsbMQ;
+			int lsbMQ = MQ[bitSize16 - 1];	// hold the last value from MQ[]
+			MQ_1 = lsbMQ;					// MQ_1 recieves the lsb from MQ[]
 
-			rightShift(MQ);
-			MQ[0] = lsbAC;
+			rightShift(MQ);					// shifts values right 1
+			MQ[0] = lsbAC;					// After shifting, MQ's MSB recieves AC's LSB
 
-			cout << counterSize << " ";
+
+			//cout << counterSize << " ";
 			cout << cycle_counter;
 			cout << "\t\t";
 			display16B(MD);
@@ -579,101 +547,20 @@ int* boothAlg(int MD[], int MQ[])
 			cout << endl;
 
 			counterSize--;
-		}
+		
+	}
 
-
-	static int product[bitSize16 + bitSize16];
+	static int product[bitSize16 + bitSize16];	// Create a 32-bit array
 
 	for (int i = 0; i < bitSize16; i++)
 	{
-		product[i] = AC[i];
+		product[i] = AC[i];						// first 16 bits comes from AC
 	}
 	for (int j = 0; j < bitSize16; j++)
 	{
-		product[bitSize16 + j] = MQ[j];
+		product[bitSize16 + j] = MQ[j];			// Second half of array is values from MQ
 
 	}
-	// returns product; // AC / MQ
 
-	return product; // temp
+	return product; // Returns the product array, giving results from Booth's alg
 }
-
-
-////// AND results
-////cout << "------------------------------------------------------------------------------" << endl;
-////cout << "\t\t AND results \t\t" << endl;
-////cout << "\ta\tb\tcin\tBinv\top\tresult\tcout" << endl;
-////cout << "------------------------------------------------------------------------------" << endl;
-////for (int i = 0; i < 8; i++)
-////{
-////	int a = (i >> 2) & 1;	// gets the left-most bit
-////	int b = (i >> 1) & 1;	// gets the 2nd bit
-////	int cinINP = (i >> 0) & 1; // gets the right-most bit
-////	int Binv = 0;
-////	string opCode = "00"; // AND
-////
-////	int res = ALU_1bit(a, b, Binv, cinINP, opCode, coutINP); //Result from inputs
-////
-////	cout << "\t" << a << "\t" << b << "\t" << cinINP << "\t" << Binv << "\t" << opCode << "\t" << res << "\t" << coutINP << endl;
-////}
-////
-////
-////
-////
-////cout << "------------------------------------------------------------------------------" << endl;
-////cout << "\t\t OR results \t\t" << endl;
-////cout << "\ta\tb\tcin\tBinv\top\tresult\tcout" << endl;
-////cout << "------------------------------------------------------------------------------" << endl;
-////for (int i = 0; i < 8; i++)
-////{
-////	int a = (i >> 2) & 1;	// gets the left-most bit, since in code a = 
-////	int b = (i >> 1) & 1;	// gets the 2nd bit
-////	int cinINP = (i >> 0) & 1; // gets the right-most bit
-////	int Binv = 0;
-////	string opCode = "01"; // OR
-////
-////	int res = ALU_1bit(a, b, Binv, cinINP, opCode, coutINP); //Result from inputs
-////
-////	cout << "\t" << a << "\t" << b << "\t" << cinINP << "\t" << Binv << "\t" << opCode << "\t" << res << "\t" << coutINP << endl;
-////}
-////
-////
-////
-////
-////cout << "------------------------------------------------------------------------------" << endl;
-////cout << "\t\t ADD results \t\t" << endl;
-////cout << "\ta\tb\tcin\tBinv\top\tresult\tcout" << endl;
-////cout << "------------------------------------------------------------------------------" << endl;
-////for (int i = 0; i < 8; i++)
-////{
-////	int a = (i >> 2) & 1;	// gets the left-most bit, since in code a = 
-////	int b = (i >> 1) & 1;	// gets the 2nd bit
-////	int cinINP = (i >> 0) & 1; // gets the right-most bit
-////	int Binv = 0;
-////	string opCode = "10"; // ADD
-////
-////	int res = ALU_1bit(a, b, Binv, cinINP, opCode, coutINP); //Result from inputs
-////
-////	cout << "\t" << a << "\t" << b << "\t" << cinINP << "\t" << Binv << "\t" << opCode << "\t" << res << "\t" << coutINP << endl;
-////}
-////
-////
-////
-////
-////cout << "------------------------------------------------------------------------------" << endl;
-////cout << "\t\t SUB results \t\t" << endl;
-////cout << "\ta\tb\tcin\tBinv\top\tresult\tcout" << endl;
-////cout << "------------------------------------------------------------------------------" << endl;
-////for (int i = 0; i < 8; i++)
-////{
-////	int a = (i >> 2) & 1;	// gets the left-most bit, since in code a = 
-////	int b = (i >> 1) & 1;	// gets the 2nd bit
-////	int cinINP = (i >> 0) & 1; // gets the right-most bit
-////	int Binv = 1;
-////	string opCode = "10"; // SUB due to Binv = 1;
-////
-////	int res = ALU_1bit(a, b, Binv, cinINP, opCode, coutINP); //Result from inputs
-////
-////	cout << "\t" << a << "\t" << b << "\t" << cinINP << "\t" << Binv << "\t" << opCode << "\t" << res << "\t" << coutINP << endl;
-////}
-////
